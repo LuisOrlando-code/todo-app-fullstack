@@ -5,7 +5,7 @@ App de tareas construida con Python y JavaScript.
 ## Tecnologías
 - Backend: Python + FastAPI
 - Frontend: HTML + CSS + JavaScript
-- Deploy: Railway
+- Deploy: Railway + Netlify
 
 ## Funciones
 - Agregar tareas
@@ -13,4 +13,4 @@ App de tareas construida con Python y JavaScript.
 - Marcar tareas como completadas
 
 ## Demo
-https://web-production-28362.up.railway.app/docs
+https://tu-url.netlify.app

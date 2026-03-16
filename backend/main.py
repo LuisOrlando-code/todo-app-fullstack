@@ -20,3 +20,9 @@ def obtener_tareas():
 def crear_tarea(tarea: dict):
     tareas.append(tarea)
     return tarea
+
+@app.delete("/tareas/{indice}")
+def eliminar_tarea(indice: int):
+    if indice < len(tareas):
+        tareas.pop(indice)
+    return tareas

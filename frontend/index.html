@@ -46,11 +46,20 @@
       const tareas = await res.json();
       const lista = document.getElementById("lista-tareas");
       lista.innerHTML = "";
-      tareas.forEach(t => {
+      tareas.forEach((t, indice) => {
         const li = document.createElement("li");
-        li.textContent = t.titulo;
+        li.innerHTML = ` <span>${t.titulo}</span>
+        <button onclick="eliminarTarea(${indice})">Eliminar</button>
+        `;
         lista.appendChild(li);
       });
+    }
+
+    async function eliminarTarea(indice) {
+    await fetch(`${API}/tareas/${indice}`, {
+      method: "DELETE"
+    });
+    cargarTareas();
     }
 
     async function crearTarea() {

@@ -29,20 +29,88 @@
     li {
       padding: 10px;
       border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
     }
+    #auth { margin-bottom: 20px; }
+    #app { display: none; }
   </style>
 </head>
 <body>
-  <h1>Mis tareas</h1>
-  <input type="text" id="input-tarea" placeholder="Nueva tarea...">
-  <button onclick="crearTarea()">Agregar</button>
-  <ul id="lista-tareas"></ul>
+
+  <div id="auth">
+    <h1>Iniciar sesión</h1>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="password" id="password" placeholder="Password"><br><br>
+    <button onclick="login()">Entrar</button>
+    <button onclick="registro()">Registrarse</button>
+    <p id="error" style="color:red"></p>
+  </div>
+
+  <div id="app">
+    <h1>Mis tareas</h1>
+    <button onclick="cerrarSesion()">Cerrar sesión</button><br><br>
+    <input type="text" id="input-tarea" placeholder="Nueva tarea...">
+    <button onclick="crearTarea()">Agregar</button>
+    <ul id="lista-tareas"></ul>
+  </div>
 
   <script>
     const API = "https://web-production-28362.up.railway.app";
 
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("token");
+      document.getElementById("auth").style.display = "block";
+      document.getElementById("app").style.display = "none";
+    }
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        mostrarApp();
+      } else {
+        document.getElementById("error").textContent = data.error;
+      }
+    }
+
+    async function registro() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const res = await fetch(`${API}/registro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.mensaje) {
+        alert("Cuenta creada, ahora inicia sesión");
+      } else {
+        document.getElementById("error").textContent = data.error;
+      }
+    }
+
+    function mostrarApp() {
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      cargarTareas();
+    }
+
     async function cargarTareas() {
-      const res = await fetch(`${API}/tareas`);
+      const res = await fetch(`${API}/tareas`, {
+        headers: { "Authorization": `Bearer ${getToken()}` }
+      });
       const tareas = await res.json();
       const lista = document.getElementById("lista-tareas");
       lista.innerHTML = "";
@@ -51,25 +119,11 @@
         li.style.textDecoration = t.completada ? "line-through" : "none";
         li.style.color = t.completada ? "#aaa" : "inherit";
         li.innerHTML = `
-         <span onclick="completarTarea(${t.id})" style="cursor:pointer">${t.titulo}</span>
-        <button onclick="eliminarTarea(${t.id})">Eliminar</button>
+          <span onclick="completarTarea(${t.id})" style="cursor:pointer">${t.titulo}</span>
+          <button onclick="eliminarTarea(${t.id})">Eliminar</button>
         `;
         lista.appendChild(li);
       });
-    }
-
-    async function eliminarTarea(indice) {
-    await fetch(`${API}/tareas/${indice}`, {
-      method: "DELETE"
-    });
-    cargarTareas();
-    }
-
-    async function completarTarea(indice) {
-      await fetch(`${API}/tareas/${indice}`, {
-        method: "PUT"
-      });
-      cargarTareas();
     }
 
     async function crearTarea() {
@@ -78,14 +132,35 @@
       if (!titulo) return;
       await fetch(`${API}/tareas`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${getToken()}`
+        },
         body: JSON.stringify({ titulo, completada: false })
       });
       input.value = "";
       cargarTareas();
     }
 
-    cargarTareas();
+    async function eliminarTarea(id) {
+      await fetch(`${API}/tareas/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${getToken()}` }
+      });
+      cargarTareas();
+    }
+
+    async function completarTarea(id) {
+      await fetch(`${API}/tareas/${id}`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${getToken()}` }
+      });
+      cargarTareas();
+    }
+
+    if (getToken()) {
+      mostrarApp();
+    }
   </script>
 </body>
 </html>

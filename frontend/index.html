@@ -48,7 +48,10 @@
       lista.innerHTML = "";
       tareas.forEach((t, indice) => {
         const li = document.createElement("li");
-        li.innerHTML = ` <span>${t.titulo}</span>
+        li.style.textDecoration = t.completada ? "line-through" : "none";
+        li.style.color = t.completada ? "#aaa" : "inherit";
+        li.innerHTML = `
+         <span onclick="completarTarea(${indice})" style="cursor:pointer">${t.titulo}</span>
         <button onclick="eliminarTarea(${indice})">Eliminar</button>
         `;
         lista.appendChild(li);
@@ -60,6 +63,13 @@
       method: "DELETE"
     });
     cargarTareas();
+    }
+
+    async function completarTarea(indice) {
+      await fetch(`${API}/tareas/${indice}`, {
+        method: "PUT"
+      });
+      cargarTareas();
     }
 
     async function crearTarea() {

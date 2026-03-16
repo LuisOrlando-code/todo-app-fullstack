@@ -26,3 +26,8 @@ def eliminar_tarea(indice: int):
     if indice < len(tareas):
         tareas.pop(indice)
     return tareas
+@app.put("/tareas/{indice}")
+def completar_tarea(indice: int):
+    if indice < len(tareas):
+        tareas[indice]["completada"] = not tareas[indice]["completada"]
+    return tareas

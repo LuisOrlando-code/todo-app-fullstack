@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    input {
+      width: 70%;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mis tareas</h1>
+  <input type="text" id="input-tarea" placeholder="Nueva tarea...">
+  <button onclick="crearTarea()">Agregar</button>
+  <ul id="lista-tareas"></ul>
+
+  <script>
+    const API = "http://127.0.0.1:8000";
+
+    async function cargarTareas() {
+      const res = await fetch(`${API}/tareas`);
+      const tareas = await res.json();
+      const lista = document.getElementById("lista-tareas");
+      lista.innerHTML = "";
+      tareas.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = t.titulo;
+        lista.appendChild(li);
+      });
+    }
+
+    async function crearTarea() {
+      const input = document.getElementById("input-tarea");
+      const titulo = input.value.trim();
+      if (!titulo) return;
+      await fetch(`${API}/tareas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo, completada: false })
+      });
+      input.value = "";
+      cargarTareas();
+    }
+
+    cargarTareas();
+  </script>
+</body>
+</html>

@@ -21,4 +21,11 @@ class Tarea(Base):
     titulo = Column(String, index=True)
     completada = Column(Boolean, default=False)
 
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+
 Base.metadata.create_all(bind=engine)

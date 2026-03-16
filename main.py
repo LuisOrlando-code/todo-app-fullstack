@@ -2,6 +2,8 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import SessionLocal, Tarea, Base, engine
+from auth import hashear_password, verificar_password, crear_token, verificar_token
+from database import Usuario
 
 app = FastAPI()
 
@@ -46,3 +48,26 @@ def completar_tarea(id: int, db: Session = Depends(get_db)):
         tarea.completada = not tarea.completada
         db.commit()
     return tarea
+
+@app.post("/registro")
+def registro(datos: dict, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.email == datos["email"]).first()
+    if usuario:
+        return {"error": "El email ya está registrado"}
+    nuevo = Usuario(
+        email=datos["email"],
+        password=hashear_password(datos["password"])
+    )
+    db.add(nuevo)
+    db.commit()
+    return {"mensaje": "Usuario creado"}
+
+@app.post("/login")
+def login(datos: dict, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.email == datos["email"]).first()
+    if not usuario or not verificar_password(datos["password"], usuario.password):
+        return {"error": "Credenciales incorrectas"}
+    token = crear_token({"sub": usuario.email})
+    return {"token": token}
+
+

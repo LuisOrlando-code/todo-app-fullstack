@@ -5,6 +5,7 @@ App de tareas construida con Python y JavaScript.
 ## Tecnologías
 - Backend: Python + FastAPI
 - Frontend: HTML + CSS + JavaScript
+- Base de datos: PostgreSQL (Neon)
 - Deploy: Railway + Netlify
 
 ## Funciones

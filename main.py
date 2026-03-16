@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from database import SessionLocal, Tarea, Base, engine
 
 app = FastAPI()
 
@@ -10,24 +12,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-tareas = []
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @app.get("/tareas")
-def obtener_tareas():
-    return tareas
+def obtener_tareas(db: Session = Depends(get_db)):
+    return db.query(Tarea).all()
 
 @app.post("/tareas")
-def crear_tarea(tarea: dict):
-    tareas.append(tarea)
-    return tarea
+def crear_tarea(tarea: dict, db: Session = Depends(get_db)):
+    nueva = Tarea(titulo=tarea["titulo"], completada=False)
+    db.add(nueva)
+    db.commit()
+    db.refresh(nueva)
+    return nueva
 
-@app.delete("/tareas/{indice}")
-def eliminar_tarea(indice: int):
-    if indice < len(tareas):
-        tareas.pop(indice)
-    return tareas
-@app.put("/tareas/{indice}")
-def completar_tarea(indice: int):
-    if indice < len(tareas):
-        tareas[indice]["completada"] = not tareas[indice]["completada"]
-    return tareas
+@app.delete("/tareas/{id}")
+def eliminar_tarea(id: int, db: Session = Depends(get_db)):
+    tarea = db.query(Tarea).filter(Tarea.id == id).first()
+    if tarea:
+        db.delete(tarea)
+        db.commit()
+    return {"ok": True}
+
+@app.put("/tareas/{id}")
+def completar_tarea(id: int, db: Session = Depends(get_db)):
+    tarea = db.query(Tarea).filter(Tarea.id == id).first()
+    if tarea:
+        tarea.completada = not tarea.completada
+        db.commit()
+    return tarea

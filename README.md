@@ -9,9 +9,10 @@ App de tareas construida con Python y JavaScript.
 - Deploy: Railway + Netlify
 
 ## Funciones
+- Registro e inicio de sesión
 - Agregar tareas
 - Eliminar tareas
 - Marcar tareas como completadas
 
 ## Demo
-https://mellifluous-kelpie-55121b.netlify.app
+cosmic-speculoos-e3b90a.netlify.app

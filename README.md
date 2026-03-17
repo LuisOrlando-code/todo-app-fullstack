@@ -15,4 +15,4 @@ App de tareas construida con Python y JavaScript.
 - Marcar tareas como completadas
 
 ## Demo
-cosmic-speculoos-e3b90a.netlify.app
+http://cosmic-speculoos-e3b90a.netlify.app

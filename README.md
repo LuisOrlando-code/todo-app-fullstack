@@ -16,3 +16,6 @@ App de tareas construida con Python y JavaScript.
 
 ## Demo
 http://cosmic-speculoos-e3b90a.netlify.app
+
+![Login](login.png)
+![Tareas](tareas.png)
